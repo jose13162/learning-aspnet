@@ -2,22 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using asp_net_core.Filters;
+using asp_net_core.Helper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace asp_net_core.Controllers {
 	[Route("api/[controller]")]
 	[ApiController]
-	[AsyncLoggingFilter(Order = -1)]
 	public class AuthController : Controller {
-		[LoggingFilter(Order = -1)]
-		[ResourceFilter]
+		private IConfiguration _configuration;
+
+		public AuthController(IConfiguration configuration) {
+			this._configuration = configuration;
+		}
+
 		[HttpGet]
 		[ProducesResponseType(200)]
 		public IActionResult Index() {
-			Console.WriteLine("Route accessed");
+			var authData = this._configuration.GetSection("Auth").Get<AuthenticationData>();
 
-			return Ok();
+			return Ok(authData);
 		}
 	}
 }
