@@ -19,7 +19,7 @@ namespace asp_net_core.Controllers {
 
 		[HttpGet("authorized")]
 		[ProducesResponseType(200)]
-		[Identity.Authorize(AuthenticationSchemes = "Bearer")]
+		[Identity.Authorize]
 		public IActionResult GetPostsAuthorized() {
 			return Ok(User.Claims);
 		}
