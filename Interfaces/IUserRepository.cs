@@ -7,5 +7,8 @@ using asp_net_core.Models;
 namespace asp_net_core.Interfaces {
 	public interface IUserRepository {
 		Task<IEnumerable<User>> GetUsers();
+		Task<bool> CreateUser();
+		Task<bool> UpdateUser();
+		Task<bool> DeleteUser();
 	}
 }

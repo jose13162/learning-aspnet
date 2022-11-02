@@ -28,5 +28,62 @@ namespace asp_net_core.Controllers {
 
 			return Ok(users);
 		}
+
+		[HttpPost]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		public async Task<IActionResult> CreateUser() {
+			var succeeded = await this._userRepository.CreateUser();
+
+			if (!ModelState.IsValid) {
+				return BadRequest(ModelState);
+			}
+
+			if (!succeeded) {
+				return BadRequest();
+			}
+
+			return Ok(new {
+				succeeded
+			});
+		}
+
+		[HttpPut]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		public async Task<IActionResult> UpdateUser() {
+			var succeeded = await this._userRepository.UpdateUser();
+
+			if (!ModelState.IsValid) {
+				return BadRequest(ModelState);
+			}
+
+			if (!succeeded) {
+				return BadRequest();
+			}
+
+			return Ok(new {
+				succeeded
+			});
+		}
+
+		[HttpDelete]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		public async Task<IActionResult> DeleteUser() {
+			var succeeded = await this._userRepository.DeleteUser();
+
+			if (!ModelState.IsValid) {
+				return BadRequest(ModelState);
+			}
+
+			if (!succeeded) {
+				return BadRequest();
+			}
+
+			return Ok(new {
+				succeeded
+			});
+		}
 	}
 }
