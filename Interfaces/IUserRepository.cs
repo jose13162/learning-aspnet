@@ -6,9 +6,6 @@ using asp_net_core.Models;
 
 namespace asp_net_core.Interfaces {
 	public interface IUserRepository {
-		Task<int> CountUsers();
-		Task<User> GetUser();
-		Task<User> GetAdmin();
-		Task<User> GetUserByName();
+		Task<IEnumerable<User>> GetUsers();
 	}
 }

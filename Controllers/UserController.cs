@@ -16,17 +16,17 @@ namespace asp_net_core.Controllers {
 			this._userRepository = userRepository;
 		}
 
-		[HttpGet("count")]
-		[ProducesResponseType(200, Type = typeof(int))]
+		[HttpGet]
+		[ProducesResponseType(200, Type = typeof(IEnumerable<User>))]
 		[ProducesResponseType(400)]
-		public async Task<IActionResult> GetCount() {
-			var count = await this._userRepository.CountUsers();
+		public async Task<IActionResult> GetUsers() {
+			var users = await this._userRepository.GetUsers();
 
 			if (!ModelState.IsValid) {
 				return BadRequest(ModelState);
 			}
 
-			return Ok(count);
+			return Ok(users);
 		}
 	}
 }

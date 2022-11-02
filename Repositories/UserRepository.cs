@@ -19,41 +19,13 @@ namespace asp_net_core.Repositories {
 			this._connection = this._context.CreateConnection();
 		}
 
-		public async Task<int> CountUsers() {
-			var sqlCountUsers = "SELECT COUNT(*) FROM Users";
-			var count = await this._connection.ExecuteScalarAsync<int>(sqlCountUsers);
-
-			return count;
-		}
-
-		public async Task<User> GetUser() {
-			var sqlSelectUser = @"
-				SELECT * FROM Users
-					WHERE Id = 'E2E73C63-639C-44E9-B269-4FDAD5A7B201'
+		public async Task<IEnumerable<User>> GetUsers() {
+			var sqlSelectUsers = @"
+				SELECT * FROM Users;
 			";
-			var user = await this._connection.QuerySingleAsync<User>(sqlSelectUser);
+			var users = await this._connection.QueryAsync<User>(sqlSelectUsers);
 
-			return user;
-		}
-
-		public async Task<User> GetAdmin() {
-			var sqlSelectUser = @"
-				SELECT * FROM Users
-					WHERE Id = 'E2E73C63-639C-44E9-B269-4FDAD5A7B201'
-			";
-			var user = await this._connection.QuerySingleOrDefaultAsync<User>(sqlSelectUser);
-
-			return user;
-		}
-
-		public async Task<User> GetUserByName() {
-			var sqlSelectUser = @"
-				SELECT * FROM Users
-					WHERE Name = 'name'
-			";
-			var user = await this._connection.QueryFirstAsync<User>(sqlSelectUser);
-
-			return user;
+			return users;
 		}
 	}
 }
