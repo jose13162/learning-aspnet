@@ -1,35 +1,43 @@
 using asp_net_core.Data;
-using asp_net_core.Models;
-using Microsoft.EntityFrameworkCore.Design;
+using asp_net_core.Interfaces;
+using asp_net_core.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<DataContext>();
+// Add services to the container.
+builder.Services.AddSingleton<DapperContext>((serviceProvider) => {
+	var dapperContext = new DapperContext(builder.Configuration);
+	var tableAction = args.GetLength(0) > 0 ? args.GetValue(0)!.ToString()!.ToLower() : "nothing";
 
-// configure swagger
+	if (tableAction == "create") {
+		dapperContext.CreateTables().Wait();
+	}
+
+	if (tableAction == "recreate") {
+		dapperContext.RecreateTables().Wait();
+	}
+
+	return dapperContext;
+});
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// using swagger
-app.UseSwagger();
-app.UseSwaggerUI();
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment()) {
+	app.UseSwagger();
+	app.UseSwaggerUI();
+}
 
-app.MapGet("/todos", (DataContext context) => {
-	context.Todos.Add(new Todo() {
-		Id = Guid.NewGuid(),
-		Title = "Ir para a academia",
-		Done = true
-	});
+app.UseHttpsRedirection();
 
-	context.SaveChanges();
+app.UseAuthorization();
 
-	var todos = context.Todos.ToList();
-
-	return Results.Ok(todos);
-})
-	.Produces<Todo>(200)
-	.Produces(500);
+app.MapControllers();
 
 app.Run();

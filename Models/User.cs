@@ -4,10 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace asp_net_core.Models {
-	public class Todo {
+	public class User {
 		public Guid Id { get; set; }
-		public Guid UserId { get; set; }
-		public string Title { get; set; }
-		public bool Done { get; set; }
+		public string Username { get; set; }
+		public ICollection<Todo> Todos = new List<Todo>();
 	}
 }
