@@ -28,34 +28,50 @@ namespace asp_net_core.Repositories {
 			return users;
 		}
 
-		public async Task<bool> CreateUser() {
+		public async Task<User> GetUser(Guid id) {
+			var sqlSelectUsers = @"
+				SELECT * FROM Users
+					WHERE Id = @Id;
+			";
+			var user = await this._connection.QuerySingleAsync<User>(sqlSelectUsers, new {
+				Id = id
+			});
+
+			return user;
+		}
+
+		public async Task<bool> CreateUser(User user) {
 			var sqlCreateUser = @"
-				INSERT INTO Users (Username) values ('username_create');
+				INSERT INTO Users (Username) VALUES (@Username);
 			";
 
-			var affectedRows = await this._connection.ExecuteAsync(sqlCreateUser);
+			var affectedRows = await this._connection.ExecuteAsync(sqlCreateUser, user);
 
 			return affectedRows > 0;
 		}
 
-		public async Task<bool> UpdateUser() {
+		public async Task<bool> UpdateUser(Guid id, User user) {
 			var sqlUpdateUser = @"
 				UPDATE Users 
-					SET Username = 'username_update'
-					WHERE Username = 'username_create';
+					SET Username = @Username
+					WHERE Id = @Id;
 			";
 
-			var affectedRows = await this._connection.ExecuteAsync(sqlUpdateUser);
+			var affectedRows = await this._connection.ExecuteAsync(sqlUpdateUser, new {
+				Id = id,
+				Username = user.Username
+			});
 
 			return affectedRows > 0;
 		}
 
-		public async Task<bool> DeleteUser() {
+		public async Task<bool> DeleteUser(Guid id) {
 			var sqlDeleteUser = @"
-				DELETE FROM Users;
+				DELETE FROM Users
+					WHERE Id = @Id;
 			";
 
-			var affectedRows = await this._connection.ExecuteAsync(sqlDeleteUser);
+			var affectedRows = await this._connection.ExecuteAsync(sqlDeleteUser, new { Id = id });
 
 			return affectedRows > 0;
 		}

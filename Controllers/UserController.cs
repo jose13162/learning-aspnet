@@ -29,11 +29,28 @@ namespace asp_net_core.Controllers {
 			return Ok(users);
 		}
 
+		[HttpGet("{id}")]
+		[ProducesResponseType(200, Type = typeof(User))]
+		[ProducesResponseType(404)]
+		public async Task<IActionResult> GetUser(Guid id) {
+			var user = await this._userRepository.GetUser(id);
+
+			if (!ModelState.IsValid) {
+				return BadRequest(ModelState);
+			}
+
+			if (user == null) {
+				return NotFound();
+			}
+
+			return Ok(user);
+		}
+
 		[HttpPost]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
-		public async Task<IActionResult> CreateUser() {
-			var succeeded = await this._userRepository.CreateUser();
+		public async Task<IActionResult> CreateUser([FromBody] User user) {
+			var succeeded = await this._userRepository.CreateUser(user);
 
 			if (!ModelState.IsValid) {
 				return BadRequest(ModelState);
@@ -48,11 +65,11 @@ namespace asp_net_core.Controllers {
 			});
 		}
 
-		[HttpPut]
+		[HttpPut("{id}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
-		public async Task<IActionResult> UpdateUser() {
-			var succeeded = await this._userRepository.UpdateUser();
+		public async Task<IActionResult> UpdateUser(Guid id, [FromBody]User user) {
+			var succeeded = await this._userRepository.UpdateUser(id, user);
 
 			if (!ModelState.IsValid) {
 				return BadRequest(ModelState);
@@ -67,11 +84,11 @@ namespace asp_net_core.Controllers {
 			});
 		}
 
-		[HttpDelete]
+		[HttpDelete("{id}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
-		public async Task<IActionResult> DeleteUser() {
-			var succeeded = await this._userRepository.DeleteUser();
+		public async Task<IActionResult> DeleteUser(Guid id) {
+			var succeeded = await this._userRepository.DeleteUser(id);
 
 			if (!ModelState.IsValid) {
 				return BadRequest(ModelState);
