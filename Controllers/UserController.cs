@@ -17,44 +17,26 @@ namespace asp_net_core.Controllers {
 		}
 
 		[HttpGet]
-		[ProducesResponseType(200, Type = typeof(IEnumerable<User>))]
-		[ProducesResponseType(400)]
-		public async Task<IActionResult> GetUsers() {
-			var users = await this._userRepository.GetUsers();
-
-			if (!ModelState.IsValid) {
-				return BadRequest(ModelState);
-			}
+		public IActionResult GetUsers() {
+			var users = this._userRepository.GetUsers();
 
 			return Ok(users);
 		}
 
 		[HttpGet("{id}")]
-		[ProducesResponseType(200, Type = typeof(User))]
-		[ProducesResponseType(404)]
-		public async Task<IActionResult> GetUser(Guid id) {
-			var user = await this._userRepository.GetUser(id);
-
-			if (!ModelState.IsValid) {
-				return BadRequest(ModelState);
-			}
+		public IActionResult GetUser(Guid id) {
+			var user = this._userRepository.GetUser(id);
 
 			if (user == null) {
 				return NotFound();
 			}
 
-			return Ok(user);
+			return Ok(user.Todos);
 		}
 
 		[HttpPost]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		public async Task<IActionResult> CreateUser([FromBody] User user) {
-			var succeeded = await this._userRepository.CreateUser(user);
-
-			if (!ModelState.IsValid) {
-				return BadRequest(ModelState);
-			}
+		public IActionResult CreateUser([FromBody] User user) {
+			var succeeded = this._userRepository.CreateUser(user);
 
 			if (!succeeded) {
 				return BadRequest();
@@ -66,14 +48,16 @@ namespace asp_net_core.Controllers {
 		}
 
 		[HttpPut("{id}")]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		public async Task<IActionResult> UpdateUser(Guid id, [FromBody]User user) {
-			var succeeded = await this._userRepository.UpdateUser(id, user);
-
-			if (!ModelState.IsValid) {
-				return BadRequest(ModelState);
+		public IActionResult UpdateUser(Guid id, [FromBody] User user) {
+			if (id != user.Id) {
+				return BadRequest();
 			}
+
+			if (!this._userRepository.UserExists(id)) {
+				return NotFound();
+			}
+
+			var succeeded = this._userRepository.UpdateUser(user);
 
 			if (!succeeded) {
 				return BadRequest();
@@ -85,14 +69,14 @@ namespace asp_net_core.Controllers {
 		}
 
 		[HttpDelete("{id}")]
-		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
-		public async Task<IActionResult> DeleteUser(Guid id) {
-			var succeeded = await this._userRepository.DeleteUser(id);
+		public IActionResult DeleteUser(Guid id) {
+			var user = this._userRepository.GetUser(id);
 
-			if (!ModelState.IsValid) {
-				return BadRequest(ModelState);
+			if (user == null) {
+				return NotFound();
 			}
+
+			var succeeded = this._userRepository.DeleteUser(user);
 
 			if (!succeeded) {
 				return BadRequest();

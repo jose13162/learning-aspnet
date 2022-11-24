@@ -6,74 +6,53 @@ using System.Threading.Tasks;
 using asp_net_core.Interfaces;
 using asp_net_core.Models;
 using Microsoft.Data.SqlClient;
-using Dapper;
 using asp_net_core.Data;
 
 namespace asp_net_core.Repositories {
 	public class UserRepository : IUserRepository {
-		private readonly DapperContext _context;
+		private readonly DataContext _context;
 		private readonly SqlConnection _connection;
 
-		public UserRepository(DapperContext context) {
+		public UserRepository(DataContext context) {
 			this._context = context;
-			this._connection = this._context.CreateConnection();
 		}
 
-		public async Task<IEnumerable<User>> GetUsers() {
-			var sqlSelectUsers = @"
-				SELECT * FROM Users;
-			";
-			var users = await this._connection.QueryAsync<User>(sqlSelectUsers);
-
-			return users;
+		public IEnumerable<User> GetUsers() {
+			return this._context.Users.ToList();
 		}
 
-		public async Task<User> GetUser(Guid id) {
-			var sqlSelectUsers = @"
-				SELECT * FROM Users
-					WHERE Id = @Id;
-			";
-			var user = await this._connection.QuerySingleAsync<User>(sqlSelectUsers, new {
-				Id = id
-			});
-
-			return user;
+		public User GetUser(Guid id) {
+			return this._context.Users
+				.Where((user) => user.Id == id)
+				.FirstOrDefault();
 		}
 
-		public async Task<bool> CreateUser(User user) {
-			var sqlCreateUser = @"
-				INSERT INTO Users (Username) VALUES (@Username);
-			";
-
-			var affectedRows = await this._connection.ExecuteAsync(sqlCreateUser, user);
-
-			return affectedRows > 0;
+		public bool UserExists(Guid id) {
+			return this._context.Users.Any((user) => user.Id == id);
 		}
 
-		public async Task<bool> UpdateUser(Guid id, User user) {
-			var sqlUpdateUser = @"
-				UPDATE Users 
-					SET Username = @Username
-					WHERE Id = @Id;
-			";
+		public bool CreateUser(User user) {
+			this._context.Users.Add(user);
 
-			var affectedRows = await this._connection.ExecuteAsync(sqlUpdateUser, new {
-				Id = id,
-				Username = user.Username
-			});
-
-			return affectedRows > 0;
+			return this.Save();
 		}
 
-		public async Task<bool> DeleteUser(Guid id) {
-			var sqlDeleteUser = @"
-				DELETE FROM Users
-					WHERE Id = @Id;
-			";
+		public bool UpdateUser(User user) {
+			this._context.Users.Update(user);
 
-			var affectedRows = await this._connection.ExecuteAsync(sqlDeleteUser, new { Id = id });
+			return this.Save();
+		}
 
-			return affectedRows > 0;
+		public bool DeleteUser(User user) {
+			this._context.Users.Remove(user);
+
+			return this.Save();
+		}
+
+		public bool Save() {
+			var saved = this._context.SaveChanges();
+
+			return saved > 0;
 		}
 	}
 }

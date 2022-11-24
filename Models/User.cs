@@ -7,6 +7,6 @@ namespace asp_net_core.Models {
 	public class User {
 		public Guid Id { get; set; }
 		public string Username { get; set; }
-		public ICollection<Todo> Todos = new List<Todo>();
+		public virtual ICollection<Todo> Todos { get; set; }
 	}
 }
