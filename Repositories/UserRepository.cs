@@ -7,6 +7,7 @@ using asp_net_core.Interfaces;
 using asp_net_core.Models;
 using Microsoft.Data.SqlClient;
 using asp_net_core.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace asp_net_core.Repositories {
 	public class UserRepository : IUserRepository {
@@ -23,6 +24,7 @@ namespace asp_net_core.Repositories {
 
 		public User GetUser(Guid id) {
 			return this._context.Users
+				.Include((user) => user.Todos)
 				.Where((user) => user.Id == id)
 				.FirstOrDefault();
 		}
