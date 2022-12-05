@@ -17,14 +17,27 @@ namespace asp_net_core.Repositories {
 		}
 
 		public IEnumerable<Todo> GetTodos(User user) {
-			return this._context.Todos
-				.Where((todo) => todo.OwnerId == user.Id);
+			var todos = this._context
+				.Entry(user)
+				.Collection((user) => user.Todos)
+				.Query();
+
+			return todos;
 		}
 
 		public Todo GetTodo(Guid id) {
-			return this._context.Todos
+			var todo = this._context.Todos
 				.Where((todo) => todo.Id == id)
-				.FirstOrDefault();
+				.FirstOrDefault()!;
+
+			this._context.Entry(todo).Reference((todo) => todo.Owner).Load();
+
+			return todo;
+		}
+
+		public bool TodoExists(Guid id) {
+			return this._context.Todos
+				.Any((todo) => todo.Id == id);
 		}
 
 		public bool CreateTodo(Todo todo) {

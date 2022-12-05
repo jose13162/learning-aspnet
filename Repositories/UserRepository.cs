@@ -24,7 +24,6 @@ namespace asp_net_core.Repositories {
 
 		public User GetUser(Guid id) {
 			return this._context.Users
-				.Include((user) => user.Todos)
 				.Where((user) => user.Id == id)
 				.FirstOrDefault();
 		}
