@@ -21,7 +21,7 @@ namespace asp_net_core.Repositories {
 				.Entry(user)
 				.Collection((user) => user.Todos)
 				.Query();
-
+ 
 			return todos;
 		}
 

@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 namespace asp_net_core.Repositories {
 	public class UserRepository : IUserRepository {
 		private readonly DataContext _context;
-		private readonly SqlConnection _connection;
 
 		public UserRepository(DataContext context) {
 			this._context = context;

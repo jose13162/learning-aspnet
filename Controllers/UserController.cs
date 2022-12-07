@@ -11,9 +11,11 @@ namespace asp_net_core.Controllers {
 	[ApiController]
 	public class UserController : Controller {
 		private readonly IUserRepository _userRepository;
+		private readonly IEmailTransporter _emailTransporter;
 
-		public UserController(IUserRepository userRepository) {
+		public UserController(IUserRepository userRepository, IEmailTransporter emailTransporter) {
 			this._userRepository = userRepository;
+			this._emailTransporter = emailTransporter;
 		}
 
 		[HttpGet]
@@ -62,6 +64,8 @@ namespace asp_net_core.Controllers {
 			if (!succeeded) {
 				return BadRequest();
 			}
+
+			this._emailTransporter.Send("User updated");
 
 			return Ok(new {
 				succeeded
