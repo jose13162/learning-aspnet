@@ -1,19 +1,17 @@
+using Microsoft.EntityFrameworkCore;
 using asp_net_core.Data;
 using asp_net_core.Interfaces;
 using asp_net_core.Repositories;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.DependencyInjection;
-using asp_net_core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
-builder.Services.AddTransient<IEmailTransporter, EmailTransporter>();
 builder.Services.AddControllers().AddJsonOptions((options) => {
 	options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });

@@ -2,93 +2,81 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using asp_net_core.Dto;
 using asp_net_core.Interfaces;
 using asp_net_core.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace asp_net_core.Controllers {
 	[Route("api/[controller]")]
 	[ApiController]
 	public class UserController : Controller {
+		private readonly IMapper _mapper;
 		private readonly IUserRepository _userRepository;
-		private readonly IEmailTransporter _emailTransporter;
 
-		public UserController(IUserRepository userRepository, IEmailTransporter emailTransporter) {
+		public UserController(IMapper mapper, IUserRepository userRepository) {
+			this._mapper = mapper;
 			this._userRepository = userRepository;
-			this._emailTransporter = emailTransporter;
 		}
 
 		[HttpGet]
 		public IActionResult GetUsers() {
-			var users = this._userRepository.GetUsers();
+			var users = this._mapper.Map<ICollection<UserDto>>(this._userRepository.GetUsers());
 
 			return Ok(users);
 		}
 
-		[HttpGet("{id}")]
-		public IActionResult GetUser(Guid id) {
-			var user = this._userRepository.GetUser(id);
-
-			if (user == null) {
+		[HttpGet("{userId}")]
+		public IActionResult GetUser(Guid userId) {
+			if (!this._userRepository.UserExists(userId)) {
 				return NotFound();
 			}
 
-			return Ok(user.Todos);
+			var user = this._mapper.Map<UserDto>(this._userRepository.GetUser(userId));
+
+			return Ok(user);
 		}
 
 		[HttpPost]
-		public IActionResult CreateUser([FromBody] User user) {
-			var succeeded = this._userRepository.CreateUser(user);
+		public IActionResult CreateUser([FromBody] UserDto user) {
+			var mappedUser = this._mapper.Map<User>(user);
 
-			if (!succeeded) {
+			if (!this._userRepository.CreateUser(mappedUser)) {
 				return BadRequest();
 			}
 
-			return Ok(new {
-				succeeded
-			});
+			return Ok();
 		}
 
-		[HttpPut("{id}")]
-		public IActionResult UpdateUser(Guid id, [FromBody] User user) {
-			if (id != user.Id) {
-				return BadRequest();
-			}
-
-			if (!this._userRepository.UserExists(id)) {
+		[HttpPut]
+		public IActionResult UpdateUser([FromBody] UserDto user) {
+			if (!this._userRepository.UserExists(user.Id)) {
 				return NotFound();
 			}
 
-			var succeeded = this._userRepository.UpdateUser(user);
+			var mappedUser = this._mapper.Map<User>(user);
 
-			if (!succeeded) {
+			if (!this._userRepository.UpdateUser(mappedUser)) {
 				return BadRequest();
 			}
 
-			this._emailTransporter.Send("User updated");
-
-			return Ok(new {
-				succeeded
-			});
+			return Ok();
 		}
 
-		[HttpDelete("{id}")]
-		public IActionResult DeleteUser(Guid id) {
-			var user = this._userRepository.GetUser(id);
+		[HttpDelete("{userId}")]
+		public IActionResult DeleteUser(Guid userId) {
+			var user = this._userRepository.GetUser(userId);
 
 			if (user == null) {
 				return NotFound();
 			}
 
-			var succeeded = this._userRepository.DeleteUser(user);
-
-			if (!succeeded) {
+			if (!this._userRepository.DeleteUser(user)) {
 				return BadRequest();
 			}
 
-			return Ok(new {
-				succeeded
-			});
+			return Ok();
 		}
 	}
 }

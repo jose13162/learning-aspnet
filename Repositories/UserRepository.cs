@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using asp_net_core.Interfaces;
 using asp_net_core.Models;
-using Microsoft.Data.SqlClient;
 using asp_net_core.Data;
 using Microsoft.EntityFrameworkCore;
 
